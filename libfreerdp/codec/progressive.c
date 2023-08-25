@@ -1700,6 +1700,10 @@ static INLINE int progressive_process_tiles(PROGRESSIVE_CONTEXT* progressive, wS
 	PTP_WORK* work_objects = NULL;
 	PROGRESSIVE_TILE_PROCESS_WORK_PARAM* params = NULL;
 	UINT16 close_cnt = 0;
+	
+	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+	UINT32 workCount = 0;
 
 	if (Stream_GetRemainingLength(s) < region->tileDataSize)
 	{
@@ -1815,6 +1819,11 @@ static INLINE int progressive_process_tiles(PROGRESSIVE_CONTEXT* progressive, wS
 				break;
 			}
 
+			pthread_mutex_lock(&mutex);
+			workCount++;
+			setWorkCountMutexCond(work_objects[index], &workCount, &cond, &mutex);
+			pthread_mutex_unlock(&mutex);
+
 			SubmitThreadpoolWork(work_objects[index]);
 			close_cnt = index + 1;
 		}
@@ -1837,11 +1846,22 @@ static INLINE int progressive_process_tiles(PROGRESSIVE_CONTEXT* progressive, wS
 
 	if (progressive->rfx_context->priv->UseThreads)
 	{
-		for (index = 0; index < close_cnt; index++)
+		// for (index = 0; index < close_cnt; index++)
+		// {
+		// 	WaitForThreadpoolWorkCallbacks(work_objects[index], FALSE);
+		// 	CloseThreadpoolWork(work_objects[index]);
+		// }
+		
+		pthread_mutex_lock(&mutex);
+		pthread_cond_wait(&cond, &mutex);
+		for(index = 0; index < close_cnt; index++)
 		{
-			WaitForThreadpoolWorkCallbacks(work_objects[index], FALSE);
-			CloseThreadpoolWork(work_objects[index]);
+			if(work_objects[index])
+			{
+				CloseThreadpoolWork(work_objects[index]);
+			}
 		}
+		pthread_mutex_unlock(&mutex);
 	}
 
 	free(work_objects);

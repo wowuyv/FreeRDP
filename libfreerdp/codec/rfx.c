@@ -295,6 +295,10 @@ RFX_CONTEXT* rfx_context_new(BOOL encoder)
 		RegCloseKey(hKey);
 	}
 
+	priv->UseThreads = TRUE;
+	priv->MinThreadCount = 0;
+	priv->MaxThreadCount = 500;
+
 	if (priv->UseThreads)
 	{
 		/* Call primitives_get here in order to avoid race conditions when using primitives_get */

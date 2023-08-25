@@ -69,26 +69,36 @@ static DWORD WINAPI thread_pool_work_func(LPVOID arg)
 
 	pool = (PTP_POOL)arg;
 
-	events[0] = pool->TerminateEvent;
-	events[1] = Queue_Event(pool->PendingQueue);
+	// events[0] = pool->TerminateEvent;
+	// events[1] = Queue_Event(pool->PendingQueue);
 
 	while (1)
 	{
-		status = WaitForMultipleObjects(2, events, FALSE, INFINITE);
+		// status = WaitForMultipleObjects(2, events, FALSE, INFINITE);
 
-		if (status == WAIT_OBJECT_0)
-			break;
+		// if (status == WAIT_OBJECT_0)
+		// 	break;
 
-		if (status != (WAIT_OBJECT_0 + 1))
-			break;
+		// if (status != (WAIT_OBJECT_0 + 1))
+		// 	break;
 
+		pthread_mutex_lock(&pool->mutex);
 		callbackInstance = (PTP_CALLBACK_INSTANCE)Queue_Dequeue(pool->PendingQueue);
+		if(!callbackInstance)
+			pthread_cond_wait(&pool->cond, &pool->mutex);
+		pthread_mutex_unlock(&pool->mutex);
 
 		if (callbackInstance)
 		{
 			work = callbackInstance->Work;
 			work->WorkCallback(callbackInstance, work->CallbackParameter, work);
-			CountdownEvent_Signal(pool->WorkComplete, 1);
+			// CountdownEvent_Signal(pool->WorkComplete, 1);
+			pthread_mutex_lock(work->mutex);
+			(*work->count)--;
+			if(*work->count < 1) {
+				pthread_cond_signal(work->cond);
+			}
+			pthread_mutex_unlock(work->mutex);
 			free(callbackInstance);
 		}
 	}

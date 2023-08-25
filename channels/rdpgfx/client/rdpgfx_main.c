@@ -2195,3 +2195,100 @@ UINT DVCPluginEntry(IDRDYNVC_ENTRY_POINTS* pEntryPoints)
 
 	return error;
 }
+
+
+static UINT wasm_rdpgfx_plugin_initialize(IWTSPlugin* pPlugin)
+{
+	UINT error;
+	RDPGFX_PLUGIN* gfx = (RDPGFX_PLUGIN*)pPlugin;
+	if (gfx->initialized)
+	{
+		WLog_ERR(TAG, "[%s] channel initialized twice, aborting", RDPGFX_DVC_CHANNEL_NAME);
+		return ERROR_INVALID_DATA;
+	}
+	gfx->listener_callback = (RDPGFX_LISTENER_CALLBACK*)calloc(1, sizeof(RDPGFX_LISTENER_CALLBACK));
+
+	if (!gfx->listener_callback)
+	{
+		WLog_Print(gfx->log, WLOG_ERROR, "calloc failed!");
+		return CHANNEL_RC_NO_MEMORY;
+	}
+
+	gfx->listener_callback->iface.OnNewChannelConnection = rdpgfx_on_new_channel_connection;
+	gfx->listener_callback->plugin = pPlugin;
+	gfx->listener_callback->channel_mgr = NULL;
+	// gfx->listener_callback->channel_mgr = pChannelMgr;
+	// error = pChannelMgr->CreateListener(pChannelMgr, RDPGFX_DVC_CHANNEL_NAME, 0,
+	//                                     &gfx->listener_callback->iface, &(gfx->listener));
+	// gfx->listener->pInterface = gfx->iface.pInterface;
+	DEBUG_RDPGFX(gfx->log, "Initialize");
+
+	gfx->initialized = error == CHANNEL_RC_OK;
+	return error;
+}
+
+static UINT wasm_rdpgfx_on_new_channel_connection(IWTSListenerCallback* pListenerCallback,
+                                             IWTSVirtualChannel* pChannel, BYTE* Data,
+                                             BOOL* pbAccept,
+                                             IWTSVirtualChannelCallback** ppCallback)
+{
+	RDPGFX_CHANNEL_CALLBACK* callback;
+	RDPGFX_LISTENER_CALLBACK* listener_callback = (RDPGFX_LISTENER_CALLBACK*)pListenerCallback;
+	callback = (RDPGFX_CHANNEL_CALLBACK*)calloc(1, sizeof(RDPGFX_CHANNEL_CALLBACK));
+
+	if (!callback)
+	{
+		WLog_ERR(TAG, "calloc failed!");
+		return CHANNEL_RC_NO_MEMORY;
+	}
+
+	callback->iface.OnDataReceived = rdpgfx_on_data_received;
+	callback->iface.OnOpen = rdpgfx_on_open;
+	callback->iface.OnClose = rdpgfx_on_close;
+	callback->plugin = listener_callback->plugin;
+	callback->channel_mgr = listener_callback->channel_mgr;
+	callback->channel = pChannel;
+	listener_callback->channel_callback = callback;
+	// *ppCallback = (IWTSVirtualChannelCallback*)callback;
+	return CHANNEL_RC_OK;
+}
+
+
+UINT wasm_rdpgfx_init(rdpSettings* settings, RdpgfxClientContext** gfxContext)
+{
+	UINT error = CHANNEL_RC_OK;
+	RDPGFX_PLUGIN* gfx;
+	RdpgfxClientContext* context;
+	context = rdpgfx_client_context_new(settings);
+	if (!context)
+	{
+		WLog_ERR(TAG, "rdpgfx_client_context_new failed!");
+		return CHANNEL_RC_NO_MEMORY;
+	}
+	gfx = (RDPGFX_PLUGIN*)context->handle;
+
+	gfx->iface.Initialize = rdpgfx_plugin_initialize;
+	gfx->iface.Connected = NULL;
+	gfx->iface.Disconnected = NULL;
+	gfx->iface.Terminated = rdpgfx_plugin_terminated;
+
+	error = wasm_rdpgfx_plugin_initialize((IWTSPlugin*)gfx);
+
+	error = wasm_rdpgfx_on_new_channel_connection(gfx->listener_callback, NULL, NULL, NULL, NULL);
+
+	*gfxContext = context;
+
+	return error;	
+}
+
+void wasm_rdpgfx_free(RdpgfxClientContext** context)
+{
+	if(!context)
+		return;
+	RDPGFX_PLUGIN* gfx = (RDPGFX_PLUGIN*)(*context)->handle;
+	if(gfx->listener_callback)
+	{
+		free(gfx->listener_callback->channel_callback);
+	}
+	rdpgfx_client_context_free(*context);
+}

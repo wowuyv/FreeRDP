@@ -544,7 +544,7 @@ DWORD GetTickCount(void)
 ULONGLONG winpr_GetTickCount64(void)
 {
 	ULONGLONG ticks = 0;
-#if defined(__linux__)
+#if defined(__linux__) || defined(__EMSCRIPTEN__)
 	struct timespec ts;
 
 	if (!clock_gettime(CLOCK_MONOTONIC_RAW, &ts))
@@ -835,6 +835,9 @@ BOOL IsProcessorFeaturePresent(DWORD ProcessorFeature)
 	}
 
 #endif // __GNUC__
+#endif
+#ifdef __EMSCRIPTEN__
+	ret = TRUE;
 #endif
 	return ret;
 }

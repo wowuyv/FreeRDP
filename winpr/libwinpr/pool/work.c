@@ -145,9 +145,22 @@ VOID winpr_SubmitThreadpoolWork(PTP_WORK pwk)
 	if (callbackInstance)
 	{
 		callbackInstance->Work = pwk;
-		CountdownEvent_AddCount(pool->WorkComplete, 1);
+		// CountdownEvent_AddCount(pool->WorkComplete, 1);
+		pthread_mutex_lock(&pool->mutex);
 		Queue_Enqueue(pool->PendingQueue, callbackInstance);
+		pthread_cond_signal(&pool->cond);
+		pthread_mutex_unlock(&pool->mutex);
 	}
+}
+
+BOOL setWorkCountMutexCond(PTP_WORK work, UINT32* count, pthread_cond_t* cond, pthread_mutex_t *mutex)
+{
+	if(!work)
+		return FALSE;
+	work->count = count;
+	work->cond = cond;
+	work->mutex = mutex;
+	return TRUE;
 }
 
 BOOL winpr_TrySubmitThreadpoolCallback(PTP_SIMPLE_CALLBACK pfns, PVOID pv,

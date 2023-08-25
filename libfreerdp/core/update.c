@@ -916,54 +916,54 @@ void update_post_disconnect(rdpUpdate* update)
 
 static BOOL _update_begin_paint(rdpContext* context)
 {
-	wStream* s;
-	rdpUpdate* update = context->update;
+	// wStream* s;
+	// rdpUpdate* update = context->update;
 
-	if (update->us)
-	{
-		if (!update_end_paint(update))
-			return FALSE;
-	}
+	// if (update->us)
+	// {
+	// 	if (!update_end_paint(update))
+	// 		return FALSE;
+	// }
 
-	s = fastpath_update_pdu_init_new(context->rdp->fastpath);
+	// s = fastpath_update_pdu_init_new(context->rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+	// if (!s)
+	// 	return FALSE;
 
-	Stream_SealLength(s);
-	Stream_GetLength(s, update->offsetOrders);
-	Stream_Seek(s, 2); /* numberOrders (2 bytes) */
-	update->combineUpdates = TRUE;
-	update->numberOrders = 0;
-	update->us = s;
+	// Stream_SealLength(s);
+	// Stream_GetLength(s, update->offsetOrders);
+	// Stream_Seek(s, 2); /* numberOrders (2 bytes) */
+	// update->combineUpdates = TRUE;
+	// update->numberOrders = 0;
+	// update->us = s;
 	return TRUE;
 }
 
 static BOOL _update_end_paint(rdpContext* context)
 {
-	wStream* s;
-	rdpUpdate* update = context->update;
+	// wStream* s;
+	// rdpUpdate* update = context->update;
 
-	if (!update->us)
-		return FALSE;
+	// if (!update->us)
+	// 	return FALSE;
 
-	s = update->us;
-	Stream_SealLength(s);
-	Stream_SetPosition(s, update->offsetOrders);
-	Stream_Write_UINT16(s, update->numberOrders); /* numberOrders (2 bytes) */
-	Stream_SetPosition(s, Stream_Length(s));
+	// s = update->us;
+	// Stream_SealLength(s);
+	// Stream_SetPosition(s, update->offsetOrders);
+	// Stream_Write_UINT16(s, update->numberOrders); /* numberOrders (2 bytes) */
+	// Stream_SetPosition(s, Stream_Length(s));
 
-	if (update->numberOrders > 0)
-	{
-		WLog_DBG(TAG, "sending %" PRIu16 " orders", update->numberOrders);
-		fastpath_send_update_pdu(context->rdp->fastpath, FASTPATH_UPDATETYPE_ORDERS, s, FALSE);
-	}
+	// if (update->numberOrders > 0)
+	// {
+	// 	WLog_DBG(TAG, "sending %" PRIu16 " orders", update->numberOrders);
+	// 	fastpath_send_update_pdu(context->rdp->fastpath, FASTPATH_UPDATETYPE_ORDERS, s, FALSE);
+	// }
 
-	update->combineUpdates = FALSE;
-	update->numberOrders = 0;
-	update->offsetOrders = 0;
-	update->us = NULL;
-	Stream_Free(s, TRUE);
+	// update->combineUpdates = FALSE;
+	// update->numberOrders = 0;
+	// update->offsetOrders = 0;
+	// update->us = NULL;
+	// Stream_Free(s, TRUE);
 	return TRUE;
 }
 
@@ -1135,18 +1135,18 @@ static void update_write_refresh_rect(wStream* s, BYTE count, const RECTANGLE_16
 
 static BOOL update_send_refresh_rect(rdpContext* context, BYTE count, const RECTANGLE_16* areas)
 {
-	rdpRdp* rdp = context->rdp;
+	// rdpRdp* rdp = context->rdp;
 
-	if (rdp->settings->RefreshRect)
-	{
-		wStream* s = rdp_data_pdu_init(rdp);
+	// if (rdp->settings->RefreshRect)
+	// {
+	// 	wStream* s = rdp_data_pdu_init(rdp);
 
-		if (!s)
-			return FALSE;
+	// 	if (!s)
+	// 		return FALSE;
 
-		update_write_refresh_rect(s, count, areas);
-		return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_REFRESH_RECT, rdp->mcs->userId);
-	}
+	// 	update_write_refresh_rect(s, count, areas);
+	// 	return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_REFRESH_RECT, rdp->mcs->userId);
+	// }
 
 	return TRUE;
 }
@@ -1168,213 +1168,221 @@ static void update_write_suppress_output(wStream* s, BYTE allow, const RECTANGLE
 
 static BOOL update_send_suppress_output(rdpContext* context, BYTE allow, const RECTANGLE_16* area)
 {
-	rdpRdp* rdp = context->rdp;
+	// rdpRdp* rdp = context->rdp;
 
-	if (rdp->settings->SuppressOutput)
-	{
-		wStream* s = rdp_data_pdu_init(rdp);
+	// if (rdp->settings->SuppressOutput)
+	// {
+	// 	wStream* s = rdp_data_pdu_init(rdp);
 
-		if (!s)
-			return FALSE;
+	// 	if (!s)
+	// 		return FALSE;
 
-		update_write_suppress_output(s, allow, area);
-		return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_SUPPRESS_OUTPUT, rdp->mcs->userId);
-	}
+	// 	update_write_suppress_output(s, allow, area);
+	// 	return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_SUPPRESS_OUTPUT, rdp->mcs->userId);
+	// }
 
 	return TRUE;
 }
 
 static BOOL update_send_surface_command(rdpContext* context, wStream* s)
 {
-	wStream* update;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret;
-	update = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* update;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret;
+// 	update = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!update)
-		return FALSE;
+// 	if (!update)
+// 		return FALSE;
 
-	if (!Stream_EnsureRemainingCapacity(update, Stream_GetPosition(s)))
-	{
-		ret = FALSE;
-		goto out;
-	}
+// 	if (!Stream_EnsureRemainingCapacity(update, Stream_GetPosition(s)))
+// 	{
+// 		ret = FALSE;
+// 		goto out;
+// 	}
 
-	Stream_Write(update, Stream_Buffer(s), Stream_GetPosition(s));
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, update, FALSE);
-out:
-	Stream_Release(update);
-	return ret;
+// 	Stream_Write(update, Stream_Buffer(s), Stream_GetPosition(s));
+// 	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, update, FALSE);
+// out:
+// 	Stream_Release(update);
+//	return ret;
+	return TRUE;
 }
 
 static BOOL update_send_surface_bits(rdpContext* context,
                                      const SURFACE_BITS_COMMAND* surfaceBitsCommand)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret = FALSE;
-	update_force_flush(context);
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret = FALSE;
+// 	update_force_flush(context);
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (!update_write_surfcmd_surface_bits(s, surfaceBitsCommand))
-		goto out_fail;
+// 	if (!update_write_surfcmd_surface_bits(s, surfaceBitsCommand))
+// 		goto out_fail;
 
-	if (!fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, s,
-	                              surfaceBitsCommand->skipCompression))
-		goto out_fail;
+// 	if (!fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, s,
+// 	                              surfaceBitsCommand->skipCompression))
+// 		goto out_fail;
 
-	update_force_flush(context);
-	ret = TRUE;
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	update_force_flush(context);
+// 	ret = TRUE;
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_send_surface_frame_marker(rdpContext* context,
                                              const SURFACE_FRAME_MARKER* surfaceFrameMarker)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret = FALSE;
-	update_force_flush(context);
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret = FALSE;
+// 	update_force_flush(context);
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (!update_write_surfcmd_frame_marker(s, surfaceFrameMarker->frameAction,
-	                                       surfaceFrameMarker->frameId) ||
-	    !fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, s, FALSE))
-		goto out_fail;
+// 	if (!update_write_surfcmd_frame_marker(s, surfaceFrameMarker->frameAction,
+// 	                                       surfaceFrameMarker->frameId) ||
+// 	    !fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, s, FALSE))
+// 		goto out_fail;
 
-	update_force_flush(context);
-	ret = TRUE;
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	update_force_flush(context);
+// 	ret = TRUE;
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_send_surface_frame_bits(rdpContext* context, const SURFACE_BITS_COMMAND* cmd,
                                            BOOL first, BOOL last, UINT32 frameId)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret = FALSE;
-	update_force_flush(context);
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret = FALSE;
+// 	update_force_flush(context);
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (first)
-	{
-		if (!update_write_surfcmd_frame_marker(s, SURFACECMD_FRAMEACTION_BEGIN, frameId))
-			goto out_fail;
-	}
+// 	if (first)
+// 	{
+// 		if (!update_write_surfcmd_frame_marker(s, SURFACECMD_FRAMEACTION_BEGIN, frameId))
+// 			goto out_fail;
+// 	}
 
-	if (!update_write_surfcmd_surface_bits(s, cmd))
-		goto out_fail;
+// 	if (!update_write_surfcmd_surface_bits(s, cmd))
+// 		goto out_fail;
 
-	if (last)
-	{
-		if (!update_write_surfcmd_frame_marker(s, SURFACECMD_FRAMEACTION_END, frameId))
-			goto out_fail;
-	}
+// 	if (last)
+// 	{
+// 		if (!update_write_surfcmd_frame_marker(s, SURFACECMD_FRAMEACTION_END, frameId))
+// 			goto out_fail;
+// 	}
 
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, s,
-	                               cmd->skipCompression);
-	update_force_flush(context);
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SURFCMDS, s,
+// 	                               cmd->skipCompression);
+// 	update_force_flush(context);
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_send_frame_acknowledge(rdpContext* context, UINT32 frameId)
 {
-	rdpRdp* rdp = context->rdp;
+	// rdpRdp* rdp = context->rdp;
 
-	if (rdp->settings->ReceivedCapabilities[CAPSET_TYPE_FRAME_ACKNOWLEDGE])
-	{
-		wStream* s = rdp_data_pdu_init(rdp);
+	// if (rdp->settings->ReceivedCapabilities[CAPSET_TYPE_FRAME_ACKNOWLEDGE])
+	// {
+	// 	wStream* s = rdp_data_pdu_init(rdp);
 
-		if (!s)
-			return FALSE;
+	// 	if (!s)
+	// 		return FALSE;
 
-		Stream_Write_UINT32(s, frameId);
-		return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_FRAME_ACKNOWLEDGE, rdp->mcs->userId);
-	}
+	// 	Stream_Write_UINT32(s, frameId);
+	// 	return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_FRAME_ACKNOWLEDGE, rdp->mcs->userId);
+	// }
 
 	return TRUE;
 }
 
 static BOOL update_send_synchronize(rdpContext* context)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret;
-	s = fastpath_update_pdu_init(rdp->fastpath);
+	// wStream* s;
+	// rdpRdp* rdp = context->rdp;
+	// BOOL ret;
+	// s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+	// if (!s)
+	// 	return FALSE;
 
-	Stream_Zero(s, 2); /* pad2Octets (2 bytes) */
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SYNCHRONIZE, s, FALSE);
-	Stream_Release(s);
-	return ret;
+	// Stream_Zero(s, 2); /* pad2Octets (2 bytes) */
+	// ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_SYNCHRONIZE, s, FALSE);
+	// Stream_Release(s);
+	// return ret;
+	return TRUE;
 }
 
 static BOOL update_send_desktop_resize(rdpContext* context)
 {
-	return rdp_server_reactivate(context->rdp);
+	// return rdp_server_reactivate(context->rdp);
+	return TRUE;
 }
 
 static BOOL update_send_bitmap_update(rdpContext* context, const BITMAP_UPDATE* bitmapUpdate)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	rdpUpdate* update = context->update;
-	BOOL ret = TRUE;
-	update_force_flush(context);
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	rdpUpdate* update = context->update;
+// 	BOOL ret = TRUE;
+// 	update_force_flush(context);
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (!update_write_bitmap_update(update, s, bitmapUpdate) ||
-	    !fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_BITMAP, s,
-	                              bitmapUpdate->skipCompression))
-	{
-		ret = FALSE;
-		goto out_fail;
-	}
+// 	if (!update_write_bitmap_update(update, s, bitmapUpdate) ||
+// 	    !fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_BITMAP, s,
+// 	                              bitmapUpdate->skipCompression))
+// 	{
+// 		ret = FALSE;
+// 		goto out_fail;
+// 	}
 
-	update_force_flush(context);
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	update_force_flush(context);
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_send_play_sound(rdpContext* context, const PLAY_SOUND_UPDATE* play_sound)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
+	// wStream* s;
+	// rdpRdp* rdp = context->rdp;
 
-	if (!rdp->settings->ReceivedCapabilities[CAPSET_TYPE_SOUND])
-	{
-		return TRUE;
-	}
+	// if (!rdp->settings->ReceivedCapabilities[CAPSET_TYPE_SOUND])
+	// {
+	// 	return TRUE;
+	// }
 
-	s = rdp_data_pdu_init(rdp);
+	// s = rdp_data_pdu_init(rdp);
 
-	if (!s)
-		return FALSE;
+	// if (!s)
+	// 	return FALSE;
 
-	Stream_Write_UINT32(s, play_sound->duration);
-	Stream_Write_UINT32(s, play_sound->frequency);
-	return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_PLAY_SOUND, rdp->mcs->userId);
+	// Stream_Write_UINT32(s, play_sound->duration);
+	// Stream_Write_UINT32(s, play_sound->frequency);
+	// return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_PLAY_SOUND, rdp->mcs->userId);
+	return TRUE;
 }
 
 /**
@@ -1956,45 +1964,47 @@ static BOOL update_send_switch_surface_order(rdpContext* context,
 static BOOL update_send_pointer_system(rdpContext* context,
                                        const POINTER_SYSTEM_UPDATE* pointer_system)
 {
-	wStream* s;
-	BYTE updateCode;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret;
-	s = fastpath_update_pdu_init(rdp->fastpath);
+	// wStream* s;
+	// BYTE updateCode;
+	// rdpRdp* rdp = context->rdp;
+	// BOOL ret;
+	// s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+	// if (!s)
+	// 	return FALSE;
 
-	if (pointer_system->type == SYSPTR_NULL)
-		updateCode = FASTPATH_UPDATETYPE_PTR_NULL;
-	else
-		updateCode = FASTPATH_UPDATETYPE_PTR_DEFAULT;
+	// if (pointer_system->type == SYSPTR_NULL)
+	// 	updateCode = FASTPATH_UPDATETYPE_PTR_NULL;
+	// else
+	// 	updateCode = FASTPATH_UPDATETYPE_PTR_DEFAULT;
 
-	ret = fastpath_send_update_pdu(rdp->fastpath, updateCode, s, FALSE);
-	Stream_Release(s);
-	return ret;
+	// ret = fastpath_send_update_pdu(rdp->fastpath, updateCode, s, FALSE);
+	// Stream_Release(s);
+	// return ret;
+	return TRUE;
 }
 
 static BOOL update_send_pointer_position(rdpContext* context,
                                          const POINTER_POSITION_UPDATE* pointerPosition)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret = FALSE;
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret = FALSE;
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (!Stream_EnsureRemainingCapacity(s, 16))
-		goto out_fail;
+// 	if (!Stream_EnsureRemainingCapacity(s, 16))
+// 		goto out_fail;
 
-	Stream_Write_UINT16(s, pointerPosition->xPos); /* xPos (2 bytes) */
-	Stream_Write_UINT16(s, pointerPosition->yPos); /* yPos (2 bytes) */
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_PTR_POSITION, s, FALSE);
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	Stream_Write_UINT16(s, pointerPosition->xPos); /* xPos (2 bytes) */
+// 	Stream_Write_UINT16(s, pointerPosition->yPos); /* yPos (2 bytes) */
+// 	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_PTR_POSITION, s, FALSE);
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_write_pointer_color(wStream* s, const POINTER_COLOR_UPDATE* pointer_color)
@@ -2024,21 +2034,22 @@ static BOOL update_write_pointer_color(wStream* s, const POINTER_COLOR_UPDATE* p
 static BOOL update_send_pointer_color(rdpContext* context,
                                       const POINTER_COLOR_UPDATE* pointer_color)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret = FALSE;
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret = FALSE;
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (!update_write_pointer_color(s, pointer_color))
-		goto out_fail;
+// 	if (!update_write_pointer_color(s, pointer_color))
+// 		goto out_fail;
 
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_COLOR, s, FALSE);
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_COLOR, s, FALSE);
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_write_pointer_large(wStream* s, const POINTER_LARGE_UPDATE* pointer)
@@ -2062,59 +2073,62 @@ static BOOL update_write_pointer_large(wStream* s, const POINTER_LARGE_UPDATE* p
 
 static BOOL update_send_pointer_large(rdpContext* context, const POINTER_LARGE_UPDATE* pointer)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret = FALSE;
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret = FALSE;
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (!update_write_pointer_large(s, pointer))
-		goto out_fail;
+// 	if (!update_write_pointer_large(s, pointer))
+// 		goto out_fail;
 
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_LARGE_POINTER, s, FALSE);
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_LARGE_POINTER, s, FALSE);
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_send_pointer_new(rdpContext* context, const POINTER_NEW_UPDATE* pointer_new)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret = FALSE;
-	s = fastpath_update_pdu_init(rdp->fastpath);
+// 	wStream* s;
+// 	rdpRdp* rdp = context->rdp;
+// 	BOOL ret = FALSE;
+// 	s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+// 	if (!s)
+// 		return FALSE;
 
-	if (!Stream_EnsureRemainingCapacity(s, 16))
-		goto out_fail;
+// 	if (!Stream_EnsureRemainingCapacity(s, 16))
+// 		goto out_fail;
 
-	Stream_Write_UINT16(s, pointer_new->xorBpp); /* xorBpp (2 bytes) */
-	update_write_pointer_color(s, &pointer_new->colorPtrAttr);
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_POINTER, s, FALSE);
-out_fail:
-	Stream_Release(s);
-	return ret;
+// 	Stream_Write_UINT16(s, pointer_new->xorBpp); /* xorBpp (2 bytes) */
+// 	update_write_pointer_color(s, &pointer_new->colorPtrAttr);
+// 	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_POINTER, s, FALSE);
+// out_fail:
+// 	Stream_Release(s);
+// 	return ret;
+	return TRUE;
 }
 
 static BOOL update_send_pointer_cached(rdpContext* context,
                                        const POINTER_CACHED_UPDATE* pointer_cached)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	BOOL ret;
-	s = fastpath_update_pdu_init(rdp->fastpath);
+	// wStream* s;
+	// rdpRdp* rdp = context->rdp;
+	// BOOL ret;
+	// s = fastpath_update_pdu_init(rdp->fastpath);
 
-	if (!s)
-		return FALSE;
+	// if (!s)
+	// 	return FALSE;
 
-	Stream_Write_UINT16(s, pointer_cached->cacheIndex); /* cacheIndex (2 bytes) */
-	ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_CACHED, s, FALSE);
-	Stream_Release(s);
-	return ret;
+	// Stream_Write_UINT16(s, pointer_cached->cacheIndex); /* cacheIndex (2 bytes) */
+	// ret = fastpath_send_update_pdu(rdp->fastpath, FASTPATH_UPDATETYPE_CACHED, s, FALSE);
+	// Stream_Release(s);
+	// return ret;
+	return TRUE;
 }
 
 BOOL update_read_refresh_rect(rdpUpdate* update, wStream* s)
@@ -2188,33 +2202,35 @@ BOOL update_read_suppress_output(rdpUpdate* update, wStream* s)
 
 static BOOL update_send_set_keyboard_indicators(rdpContext* context, UINT16 led_flags)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	s = rdp_data_pdu_init(rdp);
+	// wStream* s;
+	// rdpRdp* rdp = context->rdp;
+	// s = rdp_data_pdu_init(rdp);
 
-	if (!s)
-		return FALSE;
+	// if (!s)
+	// 	return FALSE;
 
-	Stream_Write_UINT16(s, 0);         /* unitId should be 0 according to MS-RDPBCGR 2.2.8.2.1.1 */
-	Stream_Write_UINT16(s, led_flags); /* ledFlags (2 bytes) */
-	return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_SET_KEYBOARD_INDICATORS, rdp->mcs->userId);
+	// Stream_Write_UINT16(s, 0);         /* unitId should be 0 according to MS-RDPBCGR 2.2.8.2.1.1 */
+	// Stream_Write_UINT16(s, led_flags); /* ledFlags (2 bytes) */
+	// return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_SET_KEYBOARD_INDICATORS, rdp->mcs->userId);
+	return TRUE;
 }
 
 static BOOL update_send_set_keyboard_ime_status(rdpContext* context, UINT16 imeId, UINT32 imeState,
                                                 UINT32 imeConvMode)
 {
-	wStream* s;
-	rdpRdp* rdp = context->rdp;
-	s = rdp_data_pdu_init(rdp);
+	// wStream* s;
+	// rdpRdp* rdp = context->rdp;
+	// s = rdp_data_pdu_init(rdp);
 
-	if (!s)
-		return FALSE;
+	// if (!s)
+	// 	return FALSE;
 
-	/* unitId should be 0 according to MS-RDPBCGR 2.2.8.2.2.1 */
-	Stream_Write_UINT16(s, imeId);
-	Stream_Write_UINT32(s, imeState);
-	Stream_Write_UINT32(s, imeConvMode);
-	return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_SET_KEYBOARD_IME_STATUS, rdp->mcs->userId);
+	// /* unitId should be 0 according to MS-RDPBCGR 2.2.8.2.2.1 */
+	// Stream_Write_UINT16(s, imeId);
+	// Stream_Write_UINT32(s, imeState);
+	// Stream_Write_UINT32(s, imeConvMode);
+	// return rdp_send_data_pdu(rdp, s, DATA_PDU_TYPE_SET_KEYBOARD_IME_STATUS, rdp->mcs->userId);
+	return TRUE;
 }
 
 static UINT16 update_calculate_new_or_existing_window(const WINDOW_ORDER_INFO* orderInfo,
@@ -2839,8 +2855,8 @@ void update_register_server_callbacks(rdpUpdate* update)
 	update->PlaySound = update_send_play_sound;
 	update->SetKeyboardIndicators = update_send_set_keyboard_indicators;
 	update->SetKeyboardImeStatus = update_send_set_keyboard_ime_status;
-	update->SaveSessionInfo = rdp_send_save_session_info;
-	update->ServerStatusInfo = rdp_send_server_status_info;
+	// update->SaveSessionInfo = rdp_send_save_session_info;
+	// update->ServerStatusInfo = rdp_send_server_status_info;
 	update->primary->DstBlt = update_send_dstblt;
 	update->primary->PatBlt = update_send_patblt;
 	update->primary->ScrBlt = update_send_scrblt;
@@ -2889,8 +2905,8 @@ int update_process_messages(rdpUpdate* update)
 
 static void update_free_queued_message(void* obj)
 {
-	wMessage* msg = (wMessage*)obj;
-	update_message_queue_free_message(msg);
+	// wMessage* msg = (wMessage*)obj;
+	// update_message_queue_free_message(msg);
 }
 
 void update_free_window_state(WINDOW_STATE_ORDER* window_state)
@@ -2954,10 +2970,10 @@ rdpUpdate* update_new(rdpRdp* rdp)
 	update->SuppressOutput = update_send_suppress_output;
 	update->initialState = TRUE;
 	update->autoCalculateBitmapData = TRUE;
-	update->queue = MessageQueue_New(&cb);
+	// update->queue = MessageQueue_New(&cb);
 
-	if (!update->queue)
-		goto fail;
+	// if (!update->queue)
+	// 	goto fail;
 
 	return update;
 fail:
@@ -2992,7 +3008,7 @@ void update_free(rdpUpdate* update)
 			free(update->window);
 		}
 
-		MessageQueue_Free(update->queue);
+		// MessageQueue_Free(update->queue);
 		DeleteCriticalSection(&update->mux);
 		free(update);
 	}

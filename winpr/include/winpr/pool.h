@@ -26,6 +26,8 @@
 #include <winpr/synch.h>
 #include <winpr/thread.h>
 
+#include <pthread.h>
+
 #ifndef _WIN32
 
 typedef DWORD TP_VERSION, *PTP_VERSION;
@@ -149,6 +151,8 @@ extern "C"
 #define SubmitThreadpoolWork winpr_SubmitThreadpoolWork
 #define TrySubmitThreadpoolCallback winpr_TrySubmitThreadpoolCallback
 #define WaitForThreadpoolWorkCallbacks winpr_WaitForThreadpoolWorkCallbacks
+
+BOOL setWorkCountMutexCond(PTP_WORK work, UINT32* count, pthread_cond_t* cond, pthread_mutex_t *mutex);
 
 	/* Timer */
 

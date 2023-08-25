@@ -247,6 +247,19 @@ static BOOL primitives_autodetect_best(primitives_t* prims)
 			continue;
 		}
 
+#if defined(HAVE_CPU_OPTIMIZED_PRIMITIVES) && defined(FORCE_PRIMITIVES_ONLY_CPU)
+    if(cur->flags == PRIMITIVES_ONLY_CPU) {
+			best = cur;
+			break;
+		}
+#endif
+#if defined(WITH_OPENCL) && defined(FORCE_PRIMITIVES_ONLY_GPU)
+    if(cur->flags == PRIMITIVES_ONLY_GPU) {
+			best = cur;
+			break;
+		}
+#endif
+
 		WLog_DBG(TAG, " * %s= %" PRIu32, cur->name, cur->count);
 		if (!best || (best->count < cur->count))
 			best = cur;

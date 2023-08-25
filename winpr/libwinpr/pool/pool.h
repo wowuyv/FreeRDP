@@ -24,6 +24,7 @@
 #include <winpr/synch.h>
 #include <winpr/thread.h>
 #include <winpr/collections.h>
+#include <pthread.h>
 
 struct _TP_CALLBACK_INSTANCE
 {
@@ -38,6 +39,8 @@ struct _TP_POOL
 	wQueue* PendingQueue;
 	HANDLE TerminateEvent;
 	wCountdownEvent* WorkComplete;
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
 };
 
 struct _TP_WORK
@@ -45,6 +48,9 @@ struct _TP_WORK
 	PVOID CallbackParameter;
 	PTP_WORK_CALLBACK WorkCallback;
 	PTP_CALLBACK_ENVIRON CallbackEnvironment;
+	UINT32* count;
+	pthread_mutex_t* mutex;
+	pthread_cond_t* cond;
 };
 
 struct _TP_TIMER
